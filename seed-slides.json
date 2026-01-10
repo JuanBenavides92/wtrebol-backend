@@ -1,0 +1,104 @@
+[
+    {
+        "type": "slide",
+        "title": "Mantenimiento Experto",
+        "description": "Garantizamos la vida útil de sus equipos con servicio técnico preventivo, correctivo y reconstructivo.",
+        "imageUrl": "https://images.unsplash.com/photo-1621905252507-b35492cc74b4",
+        "order": 2,
+        "isActive": true,
+        "data": {
+            "subtitle": "Servicio Técnico",
+            "buttonText": "Agendar Mantenimiento",
+            "buttonAction": "calendario",
+            "benefits": [
+                "Diagnóstico preciso",
+                "Limpieza de componentes",
+                "Optimización de consumo"
+            ]
+        }
+    },
+    {
+        "type": "slide",
+        "title": "Instalación Profesional",
+        "description": "Desde la adecuación en obra civil hasta la puesta en marcha de sistemas complejos de aire acondicionado y refrigeración industrial.",
+        "imageUrl": "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1",
+        "order": 3,
+        "isActive": true,
+        "data": {
+            "subtitle": "Instalación",
+            "categories": [
+                {
+                    "name": "Residencial",
+                    "description": "Splits, Inverter"
+                },
+                {
+                    "name": "Comercial",
+                    "description": "Cassettes, Piso Cielo"
+                },
+                {
+                    "name": "Industrial",
+                    "description": "Enfriadores de proceso"
+                }
+            ]
+        }
+    },
+    {
+        "type": "slide",
+        "title": "Soluciones Integrales",
+        "description": "Ofrecemos servicios completos de climatización, refrigeración, obra civil y asesoría técnica.",
+        "imageUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c",
+        "order": 4,
+        "isActive": true,
+        "data": {
+            "services": [
+                {
+                    "icon": "❄️",
+                    "name": "Climatización",
+                    "description": "Control de temperatura ambiental"
+                },
+                {
+                    "icon": "🛠️",
+                    "name": "Refrigeración",
+                    "description": "Sistemas de conservación"
+                },
+                {
+                    "icon": "🏗️",
+                    "name": "Obra Civil",
+                    "description": "Adecuaciones locativas"
+                },
+                {
+                    "icon": "📋",
+                    "name": "Asesoría",
+                    "description": "Proyectos a la medida"
+                }
+            ]
+        }
+    },
+    {
+        "type": "slide",
+        "title": "Productos Destacados",
+        "description": "Equipos de alta calidad para climatización residencial, comercial e industrial.",
+        "imageUrl": "https://images.unsplash.com/photo-1595807680548-74d944b90a4d",
+        "order": 5,
+        "isActive": true,
+        "data": {
+            "subtitle": "WTREBOL SHOP",
+            "buttonText": "Ver Tienda Completa",
+            "buttonAction": "tienda"
+        }
+    },
+    {
+        "type": "slide",
+        "title": "Contáctanos",
+        "description": "Estamos listos para atender tus necesidades de climatización y refrigeración.",
+        "imageUrl": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7",
+        "order": 6,
+        "isActive": true,
+        "data": {
+            "phone": "302 819 4432",
+            "email": "Wtrebol2020@hotmail.com",
+            "instagram": "@wtrebol_",
+            "cta": "Solicitar Cotización"
+        }
+    }
+]

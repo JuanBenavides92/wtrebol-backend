@@ -1,0 +1,17 @@
+{
+    "type": "service",
+    "title": "Mantenimiento Preventivo",
+    "description": "Garantizamos la vida útil de sus equipos con servicio técnico preventivo, correctivo y reconstructivo.",
+    "imageUrl": "https://images.unsplash.com/photo-1621905252507-b35492cc74b4",
+    "order": 1,
+    "isActive": true,
+    "data": {
+        "icon": "🛠️",
+        "benefits": [
+            "Diagnóstico preciso",
+            "Limpieza de componentes",
+            "Optimización de consumo"
+        ],
+        "duration": "2-3 horas"
+    }
+}

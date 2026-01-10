@@ -1,0 +1,18 @@
+{
+    "type": "product",
+    "title": "High Wall Inverter",
+    "description": "12000 BTU - Ahorro Energético",
+    "imageUrl": "https://images.unsplash.com/photo-1632823471565-1ecdf5c6da46",
+    "price": "$1.200.000",
+    "order": 1,
+    "isActive": true,
+    "data": {
+        "category": "Aire Acondicionado",
+        "features": [
+            "Inverter",
+            "Ahorro energético",
+            "Silencioso"
+        ],
+        "warranty": "2 años"
+    }
+}
