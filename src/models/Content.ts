@@ -11,6 +11,21 @@ export interface IContent extends Document {
     price?: string;
     order?: number;
     isActive: boolean;
+    layout?: 'image-right' | 'image-left' | 'image-background';
+    buttonText?: string;
+    buttonLink?: string;
+    overlayOpacity?: number;
+    // Text styling
+    titleSize?: number;
+    titleColor?: string;
+    titleGradient?: boolean;
+    titleBold?: boolean;
+    titleItalic?: boolean;
+    descriptionSize?: number;
+    descriptionColor?: string;
+    descriptionGradient?: boolean;
+    descriptionBold?: boolean;
+    descriptionItalic?: boolean;
     data?: Record<string, any>;
     createdAt: Date;
     updatedAt: Date;
@@ -50,6 +65,69 @@ const ContentSchema: Schema = new Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    layout: {
+        type: String,
+        enum: ['image-right', 'image-left', 'image-background'],
+        default: 'image-right'
+    },
+    buttonText: {
+        type: String,
+        trim: true
+    },
+    buttonLink: {
+        type: String,
+        trim: true
+    },
+    overlayOpacity: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 50
+    },
+    titleSize: {
+        type: Number,
+        min: 12,
+        max: 200,
+        default: 48
+    },
+    titleColor: {
+        type: String,
+        default: 'auto'
+    },
+    titleGradient: {
+        type: Boolean,
+        default: false
+    },
+    titleBold: {
+        type: Boolean,
+        default: true
+    },
+    titleItalic: {
+        type: Boolean,
+        default: false
+    },
+    descriptionSize: {
+        type: Number,
+        min: 12,
+        max: 100,
+        default: 18
+    },
+    descriptionColor: {
+        type: String,
+        default: 'auto'
+    },
+    descriptionGradient: {
+        type: Boolean,
+        default: false
+    },
+    descriptionBold: {
+        type: Boolean,
+        default: false
+    },
+    descriptionItalic: {
+        type: Boolean,
+        default: false
     },
     data: {
         type: Schema.Types.Mixed,
