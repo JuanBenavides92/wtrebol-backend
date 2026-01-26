@@ -120,6 +120,9 @@ export const updateContent = async (req: Request, res: Response): Promise<void> 
         const { id } = req.params;
         const updateData = req.body;
 
+        console.log('📝 Actualizando contenido:', id);
+        console.log('📦 Datos recibidos:', JSON.stringify(updateData, null, 2));
+
         // Obtener el contenido actual antes de actualizar
         const oldContent = await Content.findById(id);
 
@@ -149,6 +152,8 @@ export const updateContent = async (req: Request, res: Response): Promise<void> 
             { new: true, runValidators: true }
         );
 
+        console.log('✅ Contenido actualizado exitosamente');
+
         res.status(200).json({
             success: true,
             message: 'Contenido actualizado exitosamente',
@@ -156,10 +161,21 @@ export const updateContent = async (req: Request, res: Response): Promise<void> 
         });
 
     } catch (error) {
-        console.error('Error al actualizar contenido:', error);
+        console.error('❌ Error al actualizar contenido:', error);
+
+        // Detailed error logging
+        if (error instanceof Error) {
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            if ('errors' in error) {
+                console.error('Validation errors:', JSON.stringify((error as any).errors, null, 2));
+            }
+        }
+
         res.status(500).json({
             success: false,
-            message: 'Error al actualizar contenido'
+            message: error instanceof Error ? error.message : 'Error al actualizar contenido',
+            error: error instanceof Error ? error.name : 'Unknown error'
         });
     }
 };
@@ -206,6 +222,108 @@ export const deleteContent = async (req: Request, res: Response): Promise<void> 
         res.status(500).json({
             success: false,
             message: 'Error al eliminar contenido'
+        });
+    }
+};
+
+/**
+ * GET /api/content/product/slug/:slug
+ * Obtener un producto por su slug
+ */
+export const getProductBySlug = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { slug } = req.params;
+
+        const product = await Content.findOne({
+            type: 'product',
+            slug,
+            isActive: true
+        })
+            .populate('relatedProducts')
+            .populate('accessories');
+
+        if (!product) {
+            res.status(404).json({
+                success: false,
+                message: 'Producto no encontrado'
+            });
+            return;
+        }
+
+        // Incrementar contador de vistas
+        product.views = (product.views || 0) + 1;
+        product.lastViewed = new Date();
+        await product.save();
+
+        res.status(200).json({
+            success: true,
+            data: product
+        });
+
+    } catch (error) {
+        console.error('Error al obtener producto por slug:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener producto'
+        });
+    }
+};
+
+/**
+ * GET /api/content/:id/related
+ * Obtener productos relacionados de un producto
+ */
+export const getRelatedProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { limit = 6 } = req.query;
+
+        const product = await Content.findById(id);
+
+        if (!product) {
+            res.status(404).json({
+                success: false,
+                message: 'Producto no encontrado'
+            });
+            return;
+        }
+
+        // Obtener productos relacionados y accesorios
+        const relatedIds = [
+            ...(product.relatedProducts || []),
+            ...(product.accessories || [])
+        ];
+
+        let relatedProducts = await Content.find({
+            _id: { $in: relatedIds },
+            isActive: true
+        }).limit(Number(limit));
+
+        // Si no hay suficientes relacionados, rellenar con productos de la misma categoría
+        if (relatedProducts.length < Number(limit) && product.category) {
+            // @ts-ignore - Mongoose type compatibility
+            const additionalProducts = await Content.find({
+                type: 'product',
+                category: product.category,
+                _id: { $ne: id, $nin: relatedIds },
+                isActive: true
+            }).limit(Number(limit) - relatedProducts.length);
+
+            // @ts-ignore - Mongoose type compatibility
+            relatedProducts = [...relatedProducts, ...additionalProducts];
+        }
+
+        res.status(200).json({
+            success: true,
+            count: relatedProducts.length,
+            data: relatedProducts
+        });
+
+    } catch (error) {
+        console.error('Error al obtener productos relacionados:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener productos relacionados'
         });
     }
 };

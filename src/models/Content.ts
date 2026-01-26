@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import slugify from 'slugify';
 
 /**
  * Interface para el documento de Contenido
@@ -11,6 +12,70 @@ export interface IContent extends Document {
     price?: string;
     order?: number;
     isActive: boolean;
+    // Product-specific fields
+    category?: 'split' | 'cassette' | 'piso-cielo' | 'industrial' | 'accesorio';
+    btuCapacity?: number;
+    usageType?: 'residencial' | 'comercial' | 'industrial';
+    inStock?: boolean;
+    brand?: string;
+    // URLs & SEO
+    slug?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    metaKeywords?: string[];
+    // Identification
+    sku?: string;
+    condition?: 'nuevo' | 'usado';
+    // Stock & Availability
+    stockQuantity?: number;
+    lowStockThreshold?: number;
+    stockStatus?: 'in-stock' | 'low-stock' | 'out-of-stock' | 'pre-order';
+    // Gallery
+    images?: string[];
+    mainImageIndex?: number;
+    // Rich Content
+    longDescription?: string;
+    videoUrl?: string;
+    documents?: Array<{
+        name: string;
+        url: string;
+        type: 'manual' | 'datasheet' | 'warranty' | 'certificate' | 'other';
+    }>;
+    // Specifications (flexible)
+    specifications?: Record<string, string | number>;
+    // Features
+    features?: string[];
+    // Warranty
+    warranty?: {
+        duration: string;
+        type: string;
+        details?: string;
+    };
+    // Shipping & Installation
+    shipping?: {
+        freeShipping: boolean;
+        shippingCost?: string;
+        estimatedDays?: string;
+        availableRegions?: string[];
+    };
+    installation?: {
+        required: boolean;
+        cost?: string;
+        estimatedHours?: string;
+    };
+    // Related Products
+    relatedProducts?: string[];
+    accessories?: string[];
+    // FAQs
+    faqs?: Array<{
+        question: string;
+        answer: string;
+    }>;
+    // Badges
+    badges?: Array<'nuevo' | 'oferta' | 'mas-vendido' | 'envio-gratis' | 'destacado'>;
+    // Analytics
+    views?: number;
+    lastViewed?: Date;
     layout?: 'image-right' | 'image-left' | 'image-background';
     buttonText?: string;
     buttonLink?: string;
@@ -66,6 +131,140 @@ const ContentSchema: Schema = new Schema({
         type: Boolean,
         default: true
     },
+    // Product-specific fields
+    category: {
+        type: String,
+        enum: ['split', 'cassette', 'piso-cielo', 'industrial', 'accesorio'],
+        index: true
+    },
+    btuCapacity: {
+        type: Number,
+        index: true
+    },
+    usageType: {
+        type: String,
+        enum: ['residencial', 'comercial', 'industrial'],
+        default: 'residencial'
+    },
+    inStock: {
+        type: Boolean,
+        default: true
+    },
+    brand: {
+        type: String,
+        trim: true
+    },
+    // URLs & SEO
+    slug: {
+        type: String,
+        unique: true,
+        sparse: true,
+        index: true,
+        trim: true
+    },
+    metaTitle: String,
+    metaDescription: String,
+    metaKeywords: [String],
+    // Identification
+    sku: {
+        type: String,
+        trim: true,
+        uppercase: true
+    },
+    condition: {
+        type: String,
+        enum: ['nuevo', 'usado'],
+        default: 'nuevo'
+    },
+    // Stock & Availability
+    stockQuantity: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
+    lowStockThreshold: {
+        type: Number,
+        default: 5
+    },
+    stockStatus: {
+        type: String,
+        enum: ['in-stock', 'low-stock', 'out-of-stock', 'pre-order'],
+        default: 'in-stock'
+    },
+    // Gallery
+    images: [String],
+    mainImageIndex: {
+        type: Number,
+        default: 0
+    },
+    // Rich Content
+    longDescription: String,
+    videoUrl: String,
+    documents: [{
+        name: String,
+        url: String,
+        type: {
+            type: String,
+            enum: ['manual', 'datasheet', 'warranty', 'certificate', 'other']
+        }
+    }],
+    // Specifications (flexible key-value)
+    specifications: {
+        type: Map,
+        of: Schema.Types.Mixed
+    },
+    // Features
+    features: [String],
+    // Warranty
+    warranty: {
+        duration: String,
+        type: String,
+        details: String
+    },
+    // Shipping
+    shipping: {
+        freeShipping: {
+            type: Boolean,
+            default: false
+        },
+        shippingCost: String,
+        estimatedDays: String,
+        availableRegions: [String]
+    },
+    // Installation
+    installation: {
+        required: {
+            type: Boolean,
+            default: false
+        },
+        cost: String,
+        estimatedHours: String
+    },
+    // Related Products (references to other Content docs)
+    relatedProducts: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Content'
+    }],
+    accessories: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Content'
+    }],
+    // FAQs
+    faqs: [{
+        question: String,
+        answer: String
+    }],
+    // Badges
+    badges: [{
+        type: String,
+        enum: ['nuevo', 'oferta', 'mas-vendido', 'envio-gratis', 'destacado']
+    }],
+    // Analytics
+    views: {
+        type: Number,
+        default: 0
+    },
+    lastViewed: Date,
     layout: {
         type: String,
         enum: ['image-right', 'image-left', 'image-background'],
@@ -142,5 +341,35 @@ const ContentSchema: Schema = new Schema({
  */
 ContentSchema.index({ type: 1, order: 1 });
 ContentSchema.index({ type: 1, isActive: 1 });
+
+/**
+ * Middleware para auto-generar slug antes de guardar
+ * TEMPORARILY DISABLED - Will be re-implemented after fixing type issues
+ */
+/*
+ContentSchema.pre('save', async function () {
+    // Solo generar slug para productos si no existe
+    if (this.type === 'product' && this.isModified('title') && !this.slug) {
+        let baseSlug = slugify(this.title, {
+            lower: true,
+            strict: true,
+            locale: 'es'
+        });
+
+        // Generar slug único
+        let slug = baseSlug;
+        let counter = 1;
+        
+        // Usar modelo directamente
+        const Content = mongoose.model('Content');
+        while (await Content.findOne({ slug, _id: { $ne: this._id } })) {
+            slug = `${baseSlug}-${counter}`;
+            counter++;
+        }
+
+        this.slug = slug;
+    }
+});
+*/
 
 export default mongoose.model<IContent>('Content', ContentSchema);

@@ -230,6 +230,7 @@ export const updateTimeBlock = async (req: Request, res: Response): Promise<void
             }
 
             // Validar conflictos con otros bloques (excluyendo el actual)
+            // @ts-ignore - Mongoose type compatibility
             const blockConflict = await TimeBlock.findOne({
                 _id: { $ne: id },
                 scheduledDate: checkDate,

@@ -123,6 +123,7 @@ export const removeBlackoutDate = async (req: Request, res: Response): Promise<v
         }
 
         settings.blackoutDates = settings.blackoutDates.filter(
+            // @ts-ignore - TypeScript Date constructor parameter type issue
             d => d.toISOString() !== new Date(date).toISOString()
         );
         await settings.save();

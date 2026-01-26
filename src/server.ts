@@ -11,6 +11,11 @@ import appointmentSettingsRoutes from './routes/appointmentSettingsRoutes';
 import technicianRoutes from './routes/technicianRoutes';
 import publicAppointmentRoutes from './routes/publicAppointmentRoutes';
 import timeBlockRoutes from './routes/timeBlockRoutes';
+import customerRoutes from './routes/customerRoutes';
+import orderRoutes from './routes/orderRoutes';
+import adminOrderRoutes from './routes/adminOrderRoutes';
+import adminCustomerRoutes from './routes/adminCustomerRoutes';
+import adminUserRoutes from './routes/adminUserRoutes';
 import { initializeAppointmentSettings } from './utils/initAppointments';
 import { startReminderScheduler } from './utils/appointmentReminders';
 
@@ -25,6 +30,7 @@ const allowedOrigins = [
     process.env.FRONTEND_URL || 'http://localhost:3501',
     'http://localhost:3000', // Next.js frontend
     'http://localhost:3001', // Alternativo
+    'http://localhost:3501', // Current frontend port
 ];
 
 app.use(cors({
@@ -80,6 +86,21 @@ app.get('/test-simple', (req, res) => {
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
+
+// Rutas de clientes (E-commerce)
+app.use('/api/customers', customerRoutes);
+
+// Rutas de pedidos (E-commerce)
+app.use('/api/orders', orderRoutes);
+
+// Rutas administrativas de pedidos
+app.use('/api/admin/orders', adminOrderRoutes);
+
+// Rutas administrativas de clientes
+app.use('/api/admin/customers', adminCustomerRoutes);
+
+// Rutas administrativas de usuarios
+app.use('/api/admin/users', adminUserRoutes);
 
 // Rutas de contenido
 app.use('/api/content', contentRoutes);

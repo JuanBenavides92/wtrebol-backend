@@ -4,11 +4,21 @@ import {
     getContentById,
     createContent,
     updateContent,
-    deleteContent
+    deleteContent,
+    getProductBySlug,
+    getRelatedProducts
 } from '../controllers/contentController';
+import { generateSlugs } from '../controllers/slugController';
 import { isAuthenticated } from '../middlewares/auth';
 
 const router = Router();
+
+/**
+ * @route   POST /api/content/generate-slugs
+ * @desc    Generate slugs for all products without them
+ * @access  Private (admin only)
+ */
+router.post('/generate-slugs', isAuthenticated, generateSlugs);
 
 /**
  * @route   GET /api/content/:type
@@ -45,5 +55,19 @@ router.put('/:id', isAuthenticated, updateContent);
  * @access  Private (requiere autenticación)
  */
 router.delete('/:id', isAuthenticated, deleteContent);
+
+/**
+ * @route   GET /api/content/product/slug/:slug
+ * @desc    Obtener producto por slug
+ * @access  Public
+ */
+router.get('/product/slug/:slug', getProductBySlug);
+
+/**
+ * @route   GET /api/content/:id/related
+ * @desc    Obtener productos relacionados
+ * @access  Public
+ */
+router.get('/:id/related', getRelatedProducts);
 
 export default router;

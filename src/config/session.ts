@@ -31,7 +31,7 @@ export const sessionConfig = session({
 });
 
 /**
- * Extender el tipo de Session para incluir userId
+ * Extender el tipo de Session para incluir userId y customerId
  */
 declare module 'express-session' {
     interface SessionData {
@@ -39,5 +39,9 @@ declare module 'express-session' {
         userEmail: string;
         userName: string;
         userRole: string;
+        // Campos para clientes (e-commerce)
+        customerId: string;
+        customerEmail: string;
+        customerName: string;
     }
 }
