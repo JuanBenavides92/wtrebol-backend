@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import TimeBlock from '../models/TimeBlock';
 import Appointment from '../models/Appointment';
 
@@ -230,9 +231,8 @@ export const updateTimeBlock = async (req: Request, res: Response): Promise<void
             }
 
             // Validar conflictos con otros bloques (excluyendo el actual)
-            // @ts-ignore - Mongoose type compatibility
             const blockConflict = await TimeBlock.findOne({
-                _id: { $ne: id },
+                _id: { $ne: new mongoose.Types.ObjectId(id as string) },
                 scheduledDate: checkDate,
                 $or: [
                     {

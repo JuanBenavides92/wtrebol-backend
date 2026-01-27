@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import { login, logout, getCurrentUser } from '../controllers/authController';
+import { unifiedLogin, login, logout, getCurrentUser } from '../controllers/authController';
 import { isAuthenticated } from '../middlewares/auth';
 
 const router = Router();
 
 /**
  * @route   POST /api/auth/login
- * @desc    Autenticar usuario
+ * @desc    Autenticar usuario o cliente (Unified Login)
  * @access  Public
  */
-router.post('/login', login);
+router.post('/login', unifiedLogin);
 
 /**
  * @route   POST /api/auth/logout

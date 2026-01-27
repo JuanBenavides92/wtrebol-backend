@@ -16,6 +16,7 @@ import orderRoutes from './routes/orderRoutes';
 import adminOrderRoutes from './routes/adminOrderRoutes';
 import adminCustomerRoutes from './routes/adminCustomerRoutes';
 import adminUserRoutes from './routes/adminUserRoutes';
+import customerAppointmentRoutes from './routes/customerAppointmentRoutes';
 import { initializeAppointmentSettings } from './utils/initAppointments';
 import { startReminderScheduler } from './utils/appointmentReminders';
 
@@ -89,6 +90,9 @@ app.use('/api/auth', authRoutes);
 
 // Rutas de clientes (E-commerce)
 app.use('/api/customers', customerRoutes);
+
+// Rutas de citas de clientes (Customer Appointments)
+app.use('/api/customers', customerAppointmentRoutes);
 
 // Rutas de pedidos (E-commerce)
 app.use('/api/orders', orderRoutes);
