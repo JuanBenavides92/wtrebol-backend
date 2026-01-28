@@ -17,6 +17,9 @@ import adminOrderRoutes from './routes/adminOrderRoutes';
 import adminCustomerRoutes from './routes/adminCustomerRoutes';
 import adminUserRoutes from './routes/adminUserRoutes';
 import customerAppointmentRoutes from './routes/customerAppointmentRoutes';
+import wompiRoutes from './routes/wompiRoutes';
+import webhooksRoutes from './routes/webhooksRoutes';
+import storeSettingsRoutes from './routes/storeSettingsRoutes';
 import { initializeAppointmentSettings } from './utils/initAppointments';
 import { startReminderScheduler } from './utils/appointmentReminders';
 
@@ -96,6 +99,16 @@ app.use('/api/customers', customerAppointmentRoutes);
 
 // Rutas de pedidos (E-commerce)
 app.use('/api/orders', orderRoutes);
+
+// Rutas de Wompi Payment Gateway
+app.use('/api/wompi', wompiRoutes);
+
+// Rutas de Webhooks (Wompi notifications)
+app.use('/api/webhooks', webhooksRoutes);
+
+// Rutas de configuración de tienda
+app.use('/api/admin/store-settings', storeSettingsRoutes);
+app.use('/api/store-settings', storeSettingsRoutes);
 
 // Rutas administrativas de pedidos
 app.use('/api/admin/orders', adminOrderRoutes);

@@ -30,6 +30,7 @@ export interface IContent extends Document {
     stockQuantity?: number;
     lowStockThreshold?: number;
     stockStatus?: 'in-stock' | 'low-stock' | 'out-of-stock' | 'pre-order';
+    estimatedDeliveryDays?: number; // Días estimados de entrega
     // Gallery
     images?: string[];
     mainImageIndex?: number;
@@ -190,6 +191,11 @@ const ContentSchema: Schema = new Schema({
         type: String,
         enum: ['in-stock', 'low-stock', 'out-of-stock', 'pre-order'],
         default: 'in-stock'
+    },
+    estimatedDeliveryDays: {
+        type: Number,
+        min: 1,
+        max: 365
     },
     // Gallery
     images: [String],

@@ -32,12 +32,12 @@ const OrderStatusHistorySchema: Schema = new Schema({
     },
     previousStatus: {
         type: String,
-        enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+        enum: ['pending_payment', 'payment_confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'],
         required: true
     },
     newStatus: {
         type: String,
-        enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+        enum: ['pending_payment', 'payment_confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'],
         required: true
     },
     changedBy: {

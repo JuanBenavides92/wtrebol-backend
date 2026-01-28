@@ -1,9 +1,20 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 /**
- * Estados posibles de un pedido
+ * Estados posibles de un pedido (Mejorados)
  */
-export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus =
+    | 'pending_payment'      // Pendiente de Pago (creada pero no pagada)
+    | 'payment_confirmed'    // Pago Confirmado (pagado, esperando preparación)
+    | 'preparing'            // En Preparación (admin preparando el pedido)
+    | 'shipped'              // En Camino (enviado, en tránsito)
+    | 'delivered'            // Entregado (completado)
+    | 'cancelled';           // Cancelada
+
+/**
+ * Estados de pago
+ */
+export type PaymentStatus = 'pending' | 'approved' | 'declined' | 'voided';
 
 /**
  * Item individual dentro de un pedido
@@ -14,6 +25,7 @@ export interface IOrderItem {
     price: string;
     priceNumeric: number;
     quantity: number;
+    subtotal: number; // Precio * Cantidad
     imageUrl?: string;
     category?: string;
     btuCapacity?: number;
@@ -40,14 +52,35 @@ export interface IOrder extends Document {
     customerName: string;
     items: IOrderItem[];
     subtotal: number;
+    taxVAT: number; // IVA (19%)
+    taxConsumption: number; // Impuesto al consumo
     shipping: number;
     total: number;
+    currency: 'COP';
     status: OrderStatus;
+    paymentStatus: PaymentStatus; // Estado del pago
+
+    // Wompi Payment Gateway - Información Detallada
+    wompiTransactionId?: string;
+    wompiSignature: string; // Firma de integridad SHA256
+    wompiPaymentMethod?: string; // CARD, PSE, NEQUI, etc.
+    wompiCardBrand?: string; // VISA, MASTERCARD, AMEX, etc.
+    wompiCardLast4?: string; // Últimos 4 dígitos de la tarjeta
+    wompiApprovalCode?: string; // Código de aprobación bancaria
+    wompiPaymentLink?: string; // Enlace al recibo oficial de Wompi
+
     shippingInfo: IShippingInfo;
     notes?: string;
+
+    // Idempotency Key para prevenir pedidos duplicados
+    idempotencyKey?: string;
+
     createdAt: Date;
     updatedAt: Date;
     statusUpdatedAt: Date;
+    paidAt?: Date;
+    cancelledAt?: Date;
+    cancelledReason?: string;
 }
 
 /**
@@ -89,6 +122,16 @@ const OrderSchema: Schema = new Schema({
         required: true,
         min: 0
     },
+    taxVAT: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    taxConsumption: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     shipping: {
         type: Number,
         default: 0,
@@ -101,10 +144,29 @@ const OrderSchema: Schema = new Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
+        enum: ['pending_payment', 'payment_confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'],
+        default: 'pending_payment',
+        index: true
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'declined', 'voided'],
         default: 'pending',
         index: true
     },
+    wompiTransactionId: {
+        type: String,
+        index: true
+    },
+    wompiSignature: {
+        type: String,
+        required: false
+    },
+    wompiPaymentMethod: String,
+    wompiCardBrand: String, // VISA, MASTERCARD, AMEX, etc.
+    wompiCardLast4: String, // Últimos 4 dígitos
+    wompiApprovalCode: String, // Código de aprobación bancaria
+    wompiPaymentLink: String, // Enlace al recibo oficial
     shippingInfo: {
         name: { type: String, required: true },
         phone: { type: String, required: true },
@@ -113,10 +175,22 @@ const OrderSchema: Schema = new Schema({
         notes: String
     },
     notes: String,
+
+    // Idempotency Key para prevenir pedidos duplicados
+    idempotencyKey: {
+        type: String,
+        unique: true,
+        sparse: true, // Permite null pero unique cuando existe
+        index: true
+    },
+
     statusUpdatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    paidAt: Date,
+    cancelledAt: Date,
+    cancelledReason: String
 }, {
     timestamps: true
 });

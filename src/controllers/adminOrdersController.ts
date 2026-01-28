@@ -89,7 +89,6 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
         // Obtener historial de estados
         const statusHistory = await OrderStatusHistory.find({ orderId: order._id })
             .sort({ createdAt: 1 })
-            .populate('changedBy', 'name email')
             .select('-__v');
 
         res.status(200).json({
@@ -117,7 +116,7 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
         const { status, notes } = req.body;
 
         // Validar que el estado sea válido
-        const validStatuses: OrderStatus[] = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+        const validStatuses: OrderStatus[] = ['pending_payment', 'payment_confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'];
 
         if (!status || !validStatuses.includes(status)) {
             res.status(400).json({
@@ -158,9 +157,9 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
         // Enviar email de actualización de estado al cliente
         try {
             const statusLabels: Record<string, string> = {
-                pending: 'Pendiente',
-                confirmed: 'Confirmado',
-                processing: 'En Proceso',
+                pending_payment: 'Pendiente de Pago',
+                payment_confirmed: 'Pago Confirmado',
+                preparing: 'En Preparación',
                 shipped: 'Enviado',
                 delivered: 'Entregado',
                 cancelled: 'Cancelado'
@@ -207,8 +206,14 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
  */
 export const getOrderStats = async (req: Request, res: Response): Promise<void> => {
     try {
-        // Contar pedidos por estado
+        // Filtro para excluir pedidos pendientes de pago
+        const paidOrdersFilter = {
+            status: { $ne: 'pending_payment' }
+        };
+
+        // Contar pedidos por estado (solo pagados)
         const statsByStatus = await Order.aggregate([
+            { $match: paidOrdersFilter },
             {
                 $group: {
                     _id: '$status',
@@ -218,25 +223,28 @@ export const getOrderStats = async (req: Request, res: Response): Promise<void> 
             }
         ]);
 
-        // Total de pedidos
-        const totalOrders = await Order.countDocuments();
+        // Total de pedidos pagados
+        const totalOrders = await Order.countDocuments(paidOrdersFilter);
 
-        // Pedidos de hoy
+        // Pedidos de hoy (solo pagados)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const ordersToday = await Order.countDocuments({
+            ...paidOrdersFilter,
             createdAt: { $gte: today }
         });
 
-        // Pedidos de esta semana
+        // Pedidos de esta semana (solo pagados)
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         const ordersThisWeek = await Order.countDocuments({
+            ...paidOrdersFilter,
             createdAt: { $gte: weekAgo }
         });
 
-        // Ingresos totales
+        // Ingresos totales (solo de pedidos pagados)
         const revenueStats = await Order.aggregate([
+            { $match: paidOrdersFilter },
             {
                 $group: {
                     _id: null,
@@ -246,8 +254,8 @@ export const getOrderStats = async (req: Request, res: Response): Promise<void> 
             }
         ]);
 
-        // Pedidos recientes (últimos 5)
-        const recentOrders = await Order.find()
+        // Pedidos recientes (últimos 5, solo pagados)
+        const recentOrders = await Order.find(paidOrdersFilter)
             .sort({ createdAt: -1 })
             .limit(5)
             .select('orderNumber customerName total status createdAt');
@@ -272,3 +280,4 @@ export const getOrderStats = async (req: Request, res: Response): Promise<void> 
         });
     }
 };
+
