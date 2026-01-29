@@ -20,6 +20,8 @@ import customerAppointmentRoutes from './routes/customerAppointmentRoutes';
 import wompiRoutes from './routes/wompiRoutes';
 import webhooksRoutes from './routes/webhooksRoutes';
 import storeSettingsRoutes from './routes/storeSettingsRoutes';
+// import productOptionsRoutes from './routes/productOptionsRoutes'; // COMENTADO - Causa error de compilación
+import * as productOptionsController from './controllers/productOptionsController';
 import { initializeAppointmentSettings } from './utils/initAppointments';
 import { startReminderScheduler } from './utils/appointmentReminders';
 
@@ -125,10 +127,26 @@ app.use('/api/content', contentRoutes);
 // Rutas de upload
 app.use('/api/upload', uploadRoutes);
 
+// Rutas de opciones de producto - INLINE (CON CONTROLADOR REAL)
+console.log('📋 [INLINE-CONTROLLER] Registrando rutas con CONTROLADOR...');
+
+// GET /:type - Obtener opciones por tipo
+app.get('/api/product-options/:type', productOptionsController.getOptionsByType);
+
+app.post('/api/product-options', productOptionsController.createOption);
+
+console.log('✅ [INLINE-CONTROLLER] Rutas con CONTROLADOR registradas');
+
 // RUTA DE PRUEBA DIRECTA
 app.get('/api/appointment-settings-test', async (req, res) => {
     console.log('🧪 Ruta de prueba llamada');
     res.json({ success: true, message: 'Ruta de prueba funciona!' });
+});
+
+// RUTA INLINE DE PRODUCT-OPTIONS PARA PROBAR
+app.get('/api/product-options-inline/test', (req, res) => {
+    console.log('🧪 Ruta inline de product-options llamada');
+    res.json({ success: true, message: 'Inline route works!' });
 });
 
 // Rutas públicas de citas (sin autenticación)
@@ -176,4 +194,5 @@ const startServer = async () => {
 startServer();
 
 export default app;
+
 

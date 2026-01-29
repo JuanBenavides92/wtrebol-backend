@@ -194,7 +194,7 @@ const ContentSchema: Schema = new Schema({
     },
     estimatedDeliveryDays: {
         type: Number,
-        min: 1,
+        min: 0, // 0 indicates "not specified"
         max: 365
     },
     // Gallery
