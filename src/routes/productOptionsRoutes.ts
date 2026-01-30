@@ -1,50 +1,37 @@
 import { Router } from 'express';
+import {
+    getOptionsByType,
+    createOption,
+    updateOption,
+    deleteOption,
+    getOptionUsage,
+    incrementUsage,
+    decrementUsage
+} from '../controllers/productOptionsController';
+import { isAuthenticated } from '../middlewares/auth';
 
 const router = Router();
 
-console.log('🚀 [productOptionsRoutes] ═══════════════════════════════════════');
-console.log('🚀 [productOptionsRoutes] Archivo de rutas CARGADO');
-console.log('🚀 [productOptionsRoutes] ═══════════════════════════════════════');
+// IMPORTANT: Specific routes MUST come before generic /:type or /:id routes
+// Otherwise Express will match the generic route first
 
-// STUB FUNCTIONS - NO CONTROLLER IMPORTS
-router.get('/:type', (req, res) => {
-    const { type } = req.params;
-    const { active } = req.query;
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('📋 [GET /:type] RUTA LLAMADA');
-    console.log('  ├─ Type:', type);
-    console.log('  ├─ Query active:', active);
-    console.log('  ├─ URL completa:', req.url);
-    console.log('  ├─ Base URL:', req.baseUrl);
-    console.log('  ├─ Path:', req.path);
-    console.log('  ├─ Method:', req.method);
-    console.log('  └─ Headers:', JSON.stringify(req.headers, null, 2));
-    console.log('═══════════════════════════════════════════════════════');
+// Get usage information for an option (MUST be before /:type)
+router.get('/:id/usage', isAuthenticated, getOptionUsage);
 
-    res.json({
-        success: true,
-        count: 0,
-        data: [],
-        message: `Stub route working for type: ${type}`
-    });
-});
+// Increment/decrement usage count (MUST be before /:type)
+router.post('/:id/increment', isAuthenticated, incrementUsage);
+router.post('/:id/decrement', isAuthenticated, decrementUsage);
 
-router.post('/', (req, res) => {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('📋 [POST /] RUTA LLAMADA');
-    console.log('  └─ Body:', req.body);
-    console.log('═══════════════════════════════════════════════════════');
-    res.json({ success: true, message: 'Stub POST route' });
-});
+// Get all options by type (generic route, comes after specific routes)
+router.get('/:type', getOptionsByType);
 
-router.put('/:id', (req, res) => {
-    console.log(`📋 [PUT /:id] called with id: ${req.params.id}`);
-    res.json({ success: true, message: 'Stub PUT route' });
-});
+// Create new option
+router.post('/', isAuthenticated, createOption);
 
-router.delete('/:id', (req, res) => {
-    console.log(`📋 [DELETE /:id] called with id: ${req.params.id}`);
-    res.json({ success: true, message: 'Stub DELETE route' });
-});
+// Update option
+router.put('/:id', isAuthenticated, updateOption);
+
+// Delete option (with usage validation)
+router.delete('/:id', isAuthenticated, deleteOption);
 
 export default router;

@@ -22,6 +22,7 @@ import webhooksRoutes from './routes/webhooksRoutes';
 import storeSettingsRoutes from './routes/storeSettingsRoutes';
 // import productOptionsRoutes from './routes/productOptionsRoutes'; // COMENTADO - Causa error de compilación
 import * as productOptionsController from './controllers/productOptionsController';
+import { isAuthenticated } from './middlewares/auth';
 import { initializeAppointmentSettings } from './utils/initAppointments';
 import { startReminderScheduler } from './utils/appointmentReminders';
 
@@ -130,9 +131,22 @@ app.use('/api/upload', uploadRoutes);
 // Rutas de opciones de producto - INLINE (CON CONTROLADOR REAL)
 console.log('📋 [INLINE-CONTROLLER] Registrando rutas con CONTROLADOR...');
 
-// GET /:type - Obtener opciones por tipo
+// IMPORTANT: Specific routes MUST come before generic /:type route
+// Otherwise Express will match /:type first and never reach /:id/usage
+
+// GET /:id/usage - Check option usage (MUST be before /:type)
+app.get('/api/product-options/:id/usage', isAuthenticated, productOptionsController.getOptionUsage);
+
+// DELETE /:id - Delete option (MUST be before /:type)
+app.delete('/api/product-options/:id', isAuthenticated, productOptionsController.deleteOption);
+
+// PUT /:id - Update option (MUST be before /:type)
+app.put('/api/product-options/:id', isAuthenticated, productOptionsController.updateOption);
+
+// GET /:type - Get options by type (generic route, comes AFTER specific routes)
 app.get('/api/product-options/:type', productOptionsController.getOptionsByType);
 
+// POST / - Create new option
 app.post('/api/product-options', productOptionsController.createOption);
 
 console.log('✅ [INLINE-CONTROLLER] Rutas con CONTROLADOR registradas');

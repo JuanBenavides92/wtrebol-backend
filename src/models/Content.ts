@@ -13,7 +13,7 @@ export interface IContent extends Document {
     order?: number;
     isActive: boolean;
     // Product-specific fields
-    category?: 'split' | 'cassette' | 'piso-cielo' | 'industrial' | 'accesorio';
+    category?: string; // Dynamic - accepts any value from ProductOptions
     btuCapacity?: number;
     usageType?: 'residencial' | 'comercial' | 'industrial';
     inStock?: boolean;
@@ -25,7 +25,7 @@ export interface IContent extends Document {
     metaKeywords?: string[];
     // Identification
     sku?: string;
-    condition?: 'nuevo' | 'usado';
+    condition?: string; // Dynamic - accepts any value from ProductOptions
     // Stock & Availability
     stockQuantity?: number;
     lowStockThreshold?: number;
@@ -133,10 +133,12 @@ const ContentSchema: Schema = new Schema({
         default: true
     },
     // Product-specific fields
+    // FORCE RELOAD 2026-01-29 18:03 - Removed enums for dynamic options
     category: {
         type: String,
-        enum: ['split', 'cassette', 'piso-cielo', 'industrial', 'accesorio'],
-        index: true
+        index: true,
+        trim: true
+        // No enum - accepts dynamic values from ProductOptions
     },
     btuCapacity: {
         type: Number,
@@ -174,8 +176,9 @@ const ContentSchema: Schema = new Schema({
     },
     condition: {
         type: String,
-        enum: ['nuevo', 'usado'],
-        default: 'nuevo'
+        default: 'nuevo',
+        trim: true
+        // No enum - accepts dynamic values from ProductOptions
     },
     // Stock & Availability
     stockQuantity: {
@@ -377,5 +380,16 @@ ContentSchema.pre('save', async function () {
     }
 });
 */
+
+/**
+ * FORCE MODEL RELOAD - Clear cached model to pick up schema changes
+ * This is necessary when enum constraints are removed from an existing model
+ */
+try {
+    mongoose.deleteModel('Content');
+    console.log('🔄 [Content Model] Deleted cached model, will reload with new schema');
+} catch (e) {
+    // Model doesn't exist yet, this is fine
+}
 
 export default mongoose.model<IContent>('Content', ContentSchema);

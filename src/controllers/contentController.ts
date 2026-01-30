@@ -145,6 +145,10 @@ export const updateContent = async (req: Request, res: Response): Promise<void> 
             }
         }
 
+        console.log('🔍 [DEBUG] Inspeccionando schema de Content...');
+        console.log('📋 [DEBUG] category schema:', JSON.stringify(Content.schema.path('category')));
+        console.log('📋 [DEBUG] condition schema:', JSON.stringify(Content.schema.path('condition')));
+
         // Actualizar el contenido
         const content = await Content.findByIdAndUpdate(
             id,
