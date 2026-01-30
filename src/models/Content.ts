@@ -224,11 +224,11 @@ const ContentSchema: Schema = new Schema({
     },
     // Features
     features: [String],
-    // Warranty
+    // Warranty - Must use explicit type definition because 'type' is a reserved word
     warranty: {
-        duration: String,
-        type: String,
-        details: String
+        duration: { type: String },
+        type: { type: String },  // Explicit type definition required
+        details: { type: String }
     },
     // Shipping
     shipping: {
@@ -383,7 +383,8 @@ ContentSchema.pre('save', async function () {
 
 /**
  * FORCE MODEL RELOAD - Clear cached model to pick up schema changes
- * This is necessary when enum constraints are removed from an existing model
+ * This is necessary when schema structure changes (e.g., warranty field type definition)
+ * Last updated: 2026-01-30 - Fixed warranty nested schema syntax
  */
 try {
     mongoose.deleteModel('Content');

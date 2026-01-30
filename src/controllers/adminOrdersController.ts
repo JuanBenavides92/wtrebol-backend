@@ -12,9 +12,12 @@ export const getAllOrders = async (req: Request, res: Response): Promise<void> =
     try {
         const { status, customerId, startDate, endDate, limit = 50, page = 1, search } = req.query;
 
-        const filter: any = {};
+        // Filtro base: excluir pedidos pendientes de pago
+        const filter: any = {
+            status: { $ne: 'pending_payment' }
+        };
 
-        // Filtro por estado
+        // Filtro por estado (si se especifica, sobrescribe el filtro base)
         if (status && typeof status === 'string') {
             filter.status = status;
         }

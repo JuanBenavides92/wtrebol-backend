@@ -20,6 +20,7 @@ import customerAppointmentRoutes from './routes/customerAppointmentRoutes';
 import wompiRoutes from './routes/wompiRoutes';
 import webhooksRoutes from './routes/webhooksRoutes';
 import storeSettingsRoutes from './routes/storeSettingsRoutes';
+import siteConfigRoutes from './routes/siteConfigRoutes';
 // import productOptionsRoutes from './routes/productOptionsRoutes'; // COMENTADO - Causa error de compilación
 import * as productOptionsController from './controllers/productOptionsController';
 import { isAuthenticated } from './middlewares/auth';
@@ -112,6 +113,9 @@ app.use('/api/webhooks', webhooksRoutes);
 // Rutas de configuración de tienda
 app.use('/api/admin/store-settings', storeSettingsRoutes);
 app.use('/api/store-settings', storeSettingsRoutes);
+
+// Rutas de configuración del sitio
+app.use('/api/config', siteConfigRoutes);
 
 // Rutas administrativas de pedidos
 app.use('/api/admin/orders', adminOrderRoutes);

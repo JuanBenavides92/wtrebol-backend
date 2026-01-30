@@ -17,7 +17,16 @@ const ALLOWED_FILE_TYPES = [
     'video/mp4',
     'video/webm',
     'video/quicktime', // .mov
-    'video/x-msvideo'  // .avi
+    'video/x-msvideo',  // .avi
+    // Documentos
+    'application/pdf',
+    'application/msword', // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+    'application/vnd.ms-excel', // .xls
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+    'text/plain', // .txt
+    'application/zip',
+    'application/x-zip-compressed'
 ];
 
 // Tamaño máximo: 30MB
@@ -34,7 +43,7 @@ const fileFilter = (
     if (ALLOWED_FILE_TYPES.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Tipo de archivo no permitido. Solo se permiten imágenes (jpg, png, webp, gif) y videos (mp4, webm, mov, avi)'));
+        cb(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Solo se permiten imágenes (jpg, png, webp, gif), videos (mp4, webm, mov, avi) y documentos (pdf, doc, docx, xls, xlsx, txt, zip)`));
     }
 };
 
