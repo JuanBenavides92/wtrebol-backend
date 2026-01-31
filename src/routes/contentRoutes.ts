@@ -6,7 +6,9 @@ import {
     updateContent,
     deleteContent,
     getProductBySlug,
-    getRelatedProducts
+    getRelatedProducts,
+    getFeaturedProducts,
+    toggleFeatured
 } from '../controllers/contentController';
 import { generateSlugs } from '../controllers/slugController';
 import { isAuthenticated } from '../middlewares/auth';
@@ -19,6 +21,22 @@ const router = Router();
  * @access  Private (admin only)
  */
 router.post('/generate-slugs', isAuthenticated, generateSlugs);
+
+/**
+ * @route   GET /api/content/featured
+ * @desc    Obtener productos destacados para la landing page (máximo 3)
+ * @access  Public
+ * IMPORTANTE: Debe estar ANTES de /:type para que no sea capturado por esa ruta
+ */
+router.get('/featured', getFeaturedProducts);
+
+/**
+ * @route   GET /api/content/product/slug/:slug
+ * @desc    Obtener producto por slug
+ * @access  Public
+ * IMPORTANTE: Debe estar ANTES de /:type para que no sea capturado por esa ruta
+ */
+router.get('/product/slug/:slug', getProductBySlug);
 
 /**
  * @route   GET /api/content/:type
@@ -57,17 +75,18 @@ router.put('/:id', isAuthenticated, updateContent);
 router.delete('/:id', isAuthenticated, deleteContent);
 
 /**
- * @route   GET /api/content/product/slug/:slug
- * @desc    Obtener producto por slug
- * @access  Public
- */
-router.get('/product/slug/:slug', getProductBySlug);
-
-/**
  * @route   GET /api/content/:id/related
  * @desc    Obtener productos relacionados
  * @access  Public
  */
 router.get('/:id/related', getRelatedProducts);
 
+/**
+ * @route   PATCH /api/content/:id/toggle-featured
+ * @desc    Toggle featured status de un producto
+ * @access  Private (requiere autenticación)
+ */
+router.patch('/:id/toggle-featured', isAuthenticated, toggleFeatured);
+
 export default router;
+

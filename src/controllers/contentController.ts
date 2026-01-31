@@ -331,3 +331,124 @@ export const getRelatedProducts = async (req: Request, res: Response): Promise<v
         });
     }
 };
+
+/**
+ * GET /api/content/featured
+ * Obtener productos destacados para la landing page (máximo 3)
+ */
+export const getFeaturedProducts = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const featuredProducts = await Content.find({
+            type: 'product',
+            isFeatured: true,
+            isActive: true
+        })
+            .sort({ order: 1, createdAt: -1 })
+            .limit(3);
+
+        res.status(200).json({
+            success: true,
+            count: featuredProducts.length,
+            data: featuredProducts
+        });
+
+    } catch (error) {
+        console.error('Error al obtener productos destacados:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener productos destacados'
+        });
+    }
+};
+
+/**
+ * PATCH /api/content/:id/toggle-featured
+ * Toggle featured status de un producto (con validación de máximo 3)
+ */
+export const toggleFeatured = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        console.log('⭐ [toggleFeatured] Iniciando toggle para producto:', id);
+
+        const product = await Content.findById(id);
+        console.log('📦 [toggleFeatured] Producto encontrado:', {
+            id: product?._id,
+            title: product?.title,
+            type: product?.type,
+            isFeatured_ANTES: product?.isFeatured
+        });
+
+        if (!product) {
+            res.status(404).json({
+                success: false,
+                message: 'Producto no encontrado'
+            });
+            return;
+        }
+
+        if (product.type !== 'product') {
+            res.status(400).json({
+                success: false,
+                message: 'Solo los productos pueden ser destacados'
+            });
+            return;
+        }
+
+        // Si se está intentando activar featured
+        if (!product.isFeatured) {
+            // Verificar cuántos productos ya están destacados
+            const featuredCount = await Content.countDocuments({
+                type: 'product',
+                isFeatured: true
+            });
+
+            console.log('📊 [toggleFeatured] Productos destacados actuales:', featuredCount);
+
+            if (featuredCount >= 3) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Ya hay 3 productos destacados. Debes quitar uno antes de agregar otro.'
+                });
+                return;
+            }
+        }
+
+        // Toggle featured status
+        const valorAnterior = product.isFeatured;
+        product.isFeatured = !product.isFeatured;
+        console.log('🔄 [toggleFeatured] Cambiando isFeatured:', {
+            antes: valorAnterior,
+            despues: product.isFeatured
+        });
+
+        const savedProduct = await product.save();
+        console.log('💾 [toggleFeatured] Producto guardado:', {
+            id: savedProduct._id,
+            title: savedProduct.title,
+            isFeatured_DESPUES: savedProduct.isFeatured
+        });
+
+        // Verificar que realmente se guardó
+        const verification = await Content.findById(id);
+        console.log('✅ [toggleFeatured] Verificación en DB:', {
+            id: verification?._id,
+            isFeatured: verification?.isFeatured
+        });
+
+        res.status(200).json({
+            success: true,
+            message: product.isFeatured
+                ? 'Producto marcado como destacado'
+                : 'Producto removido de destacados',
+            data: savedProduct
+        });
+
+    } catch (error) {
+        console.error('Error al cambiar estado featured:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al cambiar estado featured'
+        });
+    }
+};
+

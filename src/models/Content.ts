@@ -74,6 +74,8 @@ export interface IContent extends Document {
     }>;
     // Badges
     badges?: Array<'nuevo' | 'oferta' | 'mas-vendido' | 'envio-gratis' | 'destacado'>;
+    // Featured on Landing Page
+    isFeatured?: boolean;
     // Analytics
     views?: number;
     lastViewed?: Date;
@@ -274,6 +276,12 @@ const ContentSchema: Schema = new Schema({
         default: 0
     },
     lastViewed: Date,
+    // Featured on Landing Page
+    isFeatured: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
     layout: {
         type: String,
         enum: ['image-right', 'image-left', 'image-background'],
