@@ -4,7 +4,7 @@ import mongoose, { Document, Schema } from 'mongoose';
  * Interface para el documento de Contenido
  */
 export interface IContent extends Document {
-    type: 'slide' | 'product' | 'service' | 'setting';
+    type: 'slide' | 'product' | 'service' | 'setting' | 'advantage' | 'faq';
     title: string;
     description?: string;
     imageUrl?: string;
@@ -38,7 +38,7 @@ const ContentSchema: Schema = new Schema({
     type: {
         type: String,
         required: [true, 'El tipo de contenido es requerido'],
-        enum: ['slide', 'product', 'service', 'setting'],
+        enum: ['slide', 'product', 'service', 'setting', 'advantage', 'faq'],
         index: true
     },
     title: {
