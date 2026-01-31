@@ -6,6 +6,12 @@ dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://martben1:fPlyG0zQBfAGzh5B@martben.qy2cvvm.mongodb.net/wtrebol?retryWrites=true&w=majority';
 
+interface ProductDocument extends mongoose.Document {
+    title: string;
+    slug?: string;
+    type: string;
+}
+
 /**
  * Script to generate slugs for existing products
  */
@@ -14,7 +20,7 @@ async function generateSlugs() {
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected to MongoDB');
 
-        const Content = mongoose.model('Content', new mongoose.Schema({}, { strict: false }));
+        const Content = mongoose.model<ProductDocument>('Content', new mongoose.Schema({}, { strict: false }));
 
         // Get all products without slugs
         const products = await Content.find({
