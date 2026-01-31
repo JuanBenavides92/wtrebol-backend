@@ -11,6 +11,7 @@ import appointmentSettingsRoutes from './routes/appointmentSettingsRoutes';
 import technicianRoutes from './routes/technicianRoutes';
 import publicAppointmentRoutes from './routes/publicAppointmentRoutes';
 import timeBlockRoutes from './routes/timeBlockRoutes';
+import siteConfigRoutes from './routes/siteConfigRoutes';
 import { initializeAppointmentSettings } from './utils/initAppointments';
 import { startReminderScheduler } from './utils/appointmentReminders';
 
@@ -109,6 +110,10 @@ app.use('/api/technicians', technicianRoutes);
 // Rutas de bloques de tiempo
 app.use('/api/time-blocks', timeBlockRoutes);
 console.log('✅ Rutas de time-blocks registradas');
+
+// Rutas de configuración del sitio
+app.use('/api/config', siteConfigRoutes);
+console.log('✅ Rutas de site-config registradas');
 
 // Función para iniciar el servidor
 const startServer = async () => {
